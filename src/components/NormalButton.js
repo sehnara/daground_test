@@ -19,8 +19,8 @@ const styles = StyleSheet.create({
         marginTop : 8,
         marginBottom : 32,
         borderRadius : 64,
-
     },
+    
     text: {
         textAlign : "center",
         color : STYLE.color.text_normal_button,

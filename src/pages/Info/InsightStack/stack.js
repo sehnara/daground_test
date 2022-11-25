@@ -4,7 +4,6 @@ import Insight from "./Insight.js";
 import InsighDetail from "./InsightDetail.js";
 
 const Stack = createNativeStackNavigator()
-
 const InsightStack = () => {
 
     return (

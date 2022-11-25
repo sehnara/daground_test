@@ -1,18 +1,27 @@
-import React from "react";
-import { View, StyleSheet, Text, Image, TouchableOpacity, Share, Linking } from "react-native";
+import React, {useEffect, useRef} from "react";
+import { View, StyleSheet, Text, Image, TouchableOpacity, Animated } from "react-native";
+import { observer } from "mobx-react";
 import {Ionicons,Feather} from '@expo/vector-icons'
 import STYLE from "../constants/style";
 import linkStore from "../modules/linkStore";
+import indexStore from "../modules/indexStore";
+import { shareUrl } from "../api/api";
+import { onLikeEffect } from "../api/animation";
 
-const CardNews = (props) => {
-    const {sector_id, title, imgUrl, date, likes, link, item, myLike} = props
-    
-    const shareUrl = async () => {
-        await Share.share({
-            message : title,
-            url : link
-        })
+const CardNews = observer((props) => {
+    const {jobStore, youtubeStore, insightStore} = indexStore()
+    const {sector_id, title, imgUrl, date, likes, link, item, myLike,id} = props
+    const scale = useRef(new Animated.Value(1)).current
+
+    const onClickLike =() => {
+        const currentStore = sector_id === 1? jobStore : sector_id === 2 ? youtubeStore : insightStore
+        currentStore.setLike(id)
+        onLikeEffect(scale)
     }
+
+    useEffect(()=>{
+        onLikeEffect(scale)
+    },[myLike])
 
     return (
         <TouchableOpacity style={styles.container} onPress={()=> {linkStore.setUrl({id : sector_id, url : link, item})}} >
@@ -26,15 +35,17 @@ const CardNews = (props) => {
             <View style={styles.dataContainer}>
                 <Text  style={styles.dataText}>{date}</Text>
                 <View style={styles.icons}>
-                    <View style={styles.dataView}>
+                    <TouchableOpacity style={styles.dataView} onPress={onClickLike}>
+                        <Animated.View style={{transform : [{scale}]}}>
                         {   
                             (myLike ? true : false) 
                             ? <Ionicons name="ios-heart" size={16} color="red" />
                             : <Ionicons name="ios-heart-outline" size={16} color="gray" />
                         }
+                         </Animated.View>   
                         <Text style={styles.dataText}>{likes}</Text>
-                    </View>
-                    <TouchableOpacity style={styles.dataView} onPress={shareUrl}>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.dataView} onPress={()=>shareUrl(title,link)}>
                             <Feather name="upload" size={16} color="gray" />
                             <Text style={styles.dataText}>공유하기</Text>
                     </TouchableOpacity>
@@ -42,7 +53,7 @@ const CardNews = (props) => {
             </View>
         </TouchableOpacity>
     )
-}
+})
 
 const styles = StyleSheet.create({
     container : {
@@ -57,6 +68,7 @@ const styles = StyleSheet.create({
     image: {
         width: STYLE.image.width,
         height: STYLE.image.height,
+        resizeMode: 'contain'
     },
     imageFilter:{
         position : "absolute",

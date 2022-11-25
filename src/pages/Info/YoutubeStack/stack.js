@@ -4,9 +4,7 @@ import Youtube from "./Youtube.js";
 import YoutubeDetail from "./YoutubeDetail.js";
 
 const Stack = createNativeStackNavigator()
-
 const YoutubeStack = () => {
-
     return (
         <Stack.Navigator>
             <Stack.Screen 

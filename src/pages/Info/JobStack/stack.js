@@ -4,7 +4,6 @@ import Jobs from "./Jobs";
 import JobDetail from "./JobDetail";
 
 const Stack = createNativeStackNavigator()
-
 const JobStack = () => {
 
     return (

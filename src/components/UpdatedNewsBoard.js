@@ -1,39 +1,42 @@
-import React, { useEffect, useState } from "react";
-import {StyleSheet, View, Text, TouchableOpacity, Share} from 'react-native'
+import React, { useEffect, useRef, useState } from "react";
+import {StyleSheet, View, Text, TouchableOpacity, Share, Animated} from 'react-native'
 import {Ionicons, Feather} from '@expo/vector-icons'
+import { observer } from "mobx-react";
 import STYLE from "../constants/style.js";
-
 import ListCarousel from "./ListCarousel.js";
 import PaginationCarousel from "./PaginationCarousel.js";
 import StatusTag from "./StatusTag.js";
 import indexStore from "../modules/indexStore.js";
+import { shareUrl } from "../api/api.js";
+import { onLikeEffect } from "../api/animation.js";
 
-const UpdatedNewsBoard = (props) => {
-    const {jobStore, insightStore, youtubeStore} = indexStore()
+const UpdatedNewsBoard = observer((props) => {
     const {title, data} = props
-    const [carouselIndex, setCarouselIndex] = useState(0)
-    const [isLike, setIsLike] = useState(false)
+    const {jobStore, insightStore, youtubeStore} = indexStore()
     
+    const [carouselIndex, setCarouselIndex] = useState(0)
+    const [currentId, setCurrentId] = useState(0)
+    
+    const currentStore = data[carouselIndex] === undefined ? undefined : data[carouselIndex]['sector_id'] === 1 ? jobStore : data[carouselIndex]['sector_id'] === 2 ? youtubeStore : insightStore
+    const scale = useRef(new Animated.Value(1)).current    
+   
     useEffect(()=>{
         if(data.length === 0) return
-        setIsLike(data[carouselIndex]['my_like'] ? true : false)
+        setCurrentId(data[carouselIndex].id)
     },[carouselIndex,data])
 
-    const shareUrl = async () => {
-        await Share.share({
-            message : data[carouselIndex].title,
-            url : data[carouselIndex].link
-        })
-    }
+    useEffect(()=>{
+            onLikeEffect(scale)
+    },[data[carouselIndex] && data[carouselIndex]['my_like']])
+    
     const setIndex = (n)=>{
         setCarouselIndex(n)
     }
 
     const onLike = () => {
-        const store = data[carouselIndex].sector_id === 1 ? jobStore : data[carouselIndex].sector_id === 2 ? youtubeStore : insightStore
-        const isLike = store.setLike(data[carouselIndex].id)
-        setIsLike(isLike)
-    }
+        currentStore.setLike(currentId)
+        onLikeEffect(scale)
+    }   
 
     return (
         <View style={styles.container}>
@@ -45,21 +48,31 @@ const UpdatedNewsBoard = (props) => {
             <View style={styles.bottom}>
                 <PaginationCarousel data={data} index={carouselIndex}/>
                 <View style={styles.buttons}>
-                    <TouchableOpacity onPress={onLike}>
+                    <TouchableOpacity onPress={onLike} >
+                        <Animated.View style={{transform : [{scale}]}}>
                         {
-                            isLike 
-                            ? <Ionicons name="ios-heart" size={32} color="red" />
-                            :<Ionicons name="ios-heart-outline" size={32} color="gray" />
-                        }                        
+                            currentStore === undefined 
+                            ? <Ionicons name="ios-heart-outline" size={32} color="gray"/>
+                            :
+                            (
+                                !currentStore.getDataById(currentId)
+                                ?<Ionicons name="ios-heart-outline" size={32} color="gray" />
+                                :(currentStore.getDataById(currentId)['my_like']
+                                    ? <Ionicons name="ios-heart" size={32} color="red" />
+                                    :<Ionicons name="ios-heart-outline" size={32} color="gray" />
+                            ))
+                        }              
+                        </Animated.View>          
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={shareUrl}>
+                    
+                    <TouchableOpacity onPress={()=> shareUrl(data[carouselIndex].title, data[carouselIndex].link)}>
                         <Feather name="upload" size={32} color="gray" />
                     </TouchableOpacity>
                 </View>
             </View>
         </View>
     )
-}
+})
 
 const styles = StyleSheet.create({
     container : {
@@ -91,7 +104,7 @@ const styles = StyleSheet.create({
         justifyContent : 'space-between',
         alignItems : "center",
         width : 84
-    }
+    },
 
 })
 

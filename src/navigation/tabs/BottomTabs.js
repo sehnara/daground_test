@@ -1,9 +1,9 @@
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import {Ionicons,Feather, MaterialCommunityIcons} from '@expo/vector-icons'
 import Home from '../../pages/Home';
 import Invest from '../../pages/Invest';
 import Settings from '../../pages/Settings';
 import InfoTopTabs from './InfoTopTabs';
-import {Ionicons,Feather, MaterialCommunityIcons} from '@expo/vector-icons'
 
 
 const Tab = createBottomTabNavigator();

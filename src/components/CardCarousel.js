@@ -8,7 +8,10 @@ const CardCarousel = (props) => {
     const {item, index} = props
 
     return (
-    <TouchableOpacity style={styles.container} key={index} onPress={()=> {linkStore.setUrl({id : item.sector_id, url : item.link , item})}}>
+    <TouchableOpacity key={index} onPress={
+        ()=> {
+            linkStore.setUrl({id : item.sector_id, url : item.link , item})}
+    }>
             <View style={styles.imageContainer}>
                 <Image
                     source={{ uri: item.image }}
@@ -25,12 +28,10 @@ const CardCarousel = (props) => {
 }
 
 const styles = StyleSheet.create({
-    container : {
-        height : 250
-    },
     imageContainer:{
         flex :1,
-        position : "relative"
+        position : "relative",
+        marginBottom : STYLE.margin.small
     },
     bodyContainer : {
         shadowColor: "gray",
@@ -45,8 +46,7 @@ const styles = StyleSheet.create({
         borderRadius : 16,
         marginBottom : 6,
         marginHorizontal : 2,
-        padding : 24
-
+        padding : 24,
     },
     bodyFont : {
         textAlign : "center",
@@ -56,6 +56,7 @@ const styles = StyleSheet.create({
     image: {
         width: STYLE.image.width,
         height: STYLE.image.height,
+        resizeMode: 'contain'
     },
     imageFilter:{
         position : "absolute",

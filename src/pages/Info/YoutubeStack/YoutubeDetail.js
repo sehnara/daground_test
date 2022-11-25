@@ -1,31 +1,22 @@
-import React, { useEffect, useState } from "react";
-import { ScrollView, View,Text,TouchableOpacity, StyleSheet, Share} from "react-native";
-import linkStore from "../../../modules/linkStore";
-import {Ionicons,Feather} from '@expo/vector-icons'
+import React, {useRef} from "react";
+import { observer } from "mobx-react";
+import { ScrollView, View,Text,TouchableOpacity, StyleSheet, Animated} from "react-native";
 import {WebView} from 'react-native-webview'
+import {Ionicons,Feather} from '@expo/vector-icons'
 import STYLE from "../../../constants/style";
 import AllNewsBoard from "../../../components/AllNewsBoard";
 import indexStore from "../../../modules/indexStore";
+import { shareUrl } from "../../../api/api";
+import { onLikeEffect } from "../../../api/animation";
 
-const YoutubeDetail = (props) => {
+const YoutubeDetail = observer((props) => {
     const {title, body, link, id, my_like} = props.route.params.item
     const {youtubeStore} = indexStore()
-    const [isLike, setIsLike] = useState(my_like ? true : false)
-    const target = youtubeStore.getData().filter(data => data.id === id)[0]
-    
-    useEffect(()=> {
-        return(()=>{
-            target['my_like'] = isLike 
-            target['like_cnt'] = isLike ? target['like_cnt']+1 : target['like_cnt']-1
-            linkStore.setUrl({id : '', url : ""})
-        })
-    },[isLike])
+    const scale = useRef(new Animated.Value(1)).current
 
-    const shareUrl = async () => {
-        await Share.share({
-            message : title,
-            url : link
-        })
+    const onClickLike =() => {
+        youtubeStore.setLike(id)
+        onLikeEffect(scale)
     }
 
     return (
@@ -43,15 +34,17 @@ const YoutubeDetail = (props) => {
             </View>
             <Text style={styles.bodyText}>{body}</Text>
             <View style={styles.icons}>
-                <TouchableOpacity style={styles.dataView} onPress={() => setIsLike(!isLike)}>
+                <TouchableOpacity style={styles.dataView} onPress={onClickLike}>
+                    <Animated.View style={{transform : [{scale}]}}>
                     {
-                        isLike 
+                        my_like 
                         ? <Ionicons name="ios-heart" size={16} color="red" />
                         : <Ionicons name="heart-outline" size={16} color="gray" />
                     }
+                    </Animated.View>  
                     <Text style={styles.dataText}>좋아요</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.dataView} onPress={shareUrl}>
+                <TouchableOpacity style={styles.dataView} onPress={()=>shareUrl(title,link)}>
                         <Feather name="upload" size={16} color="gray" />
                         <Text style={styles.dataText}>공유하기</Text>
                 </TouchableOpacity>
@@ -66,7 +59,7 @@ const YoutubeDetail = (props) => {
             />
         </ScrollView>     
     )
-}
+})
 
 const styles = StyleSheet.create({
     titleView : {

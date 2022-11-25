@@ -1,15 +1,15 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import { ScrollView } from "react-native";
+import { observer } from "mobx-react";
+import axios from 'axios'
+import STYLE from "../../../constants/style";
 import AllNewsBoard from "../../../components/AllNewsBoard";
 import UpdatedNewsBoard from "../../../components/UpdatedNewsBoard";
-import STYLE from "../../../constants/style";
-import axios from 'axios'
-import { observer } from "mobx-react";
-import linkStore from "../../../modules/linkStore";
 import indexStore from "../../../modules/indexStore";
 
 const Insight = observer(({navigation}) => {
-    const {insightStore} = indexStore()
+    const {linkStore, insightStore} = indexStore()
+    
     useEffect(()=>{    
         if(insightStore.getData().length !== 0) return
         fetchData()

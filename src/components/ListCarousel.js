@@ -1,11 +1,12 @@
 import React, { useRef } from "react";
-import {StyleSheet, Text, View } from "react-native";
+import {StyleSheet, View } from "react-native";
+import { observer } from "mobx-react";
 import Carousel from "react-native-snap-carousel";
 import CardCarousel from "./CardCarousel";
 import STYLE from "../constants/style";
 
 
-const ListCarousel = (props) => {
+const ListCarousel = observer((props) => {
     const {data, setIndex} = props
     const carouselRef = useRef(null)
 
@@ -25,7 +26,7 @@ const ListCarousel = (props) => {
             />
         </View>
     )
-}
+})
 
 const styles = StyleSheet.create({
     container : {

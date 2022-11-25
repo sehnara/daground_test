@@ -1,7 +1,7 @@
 import {observable} from 'mobx';
 
 const linkStore = observable({
-    currentUrl : {id : 0, url  :""},
+    currentUrl : {id : 0, url  :"", item:""},
     setUrl(t){
         this.currentUrl = t
     },
